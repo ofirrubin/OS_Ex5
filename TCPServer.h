@@ -12,3 +12,4 @@ void handle_forever_process(int sockfd, char *s[INET_ADDRSTRLEN], void *(* f)(vo
 int sock_send(const char *respond, int size, int sockfd);
 
 int receive(int sockfd, char **buffer, int size_p1, int *input_size);
+

@@ -13,6 +13,16 @@
 
 #define BACKLOG 10     // how many pending connections queue will hold
 #define MAX 1032
+#define MAXVAL 1024
+
+//
+//
+//
+//
+//
+//
+//
+// NEW - SHARED MEMORY
 
 struct Stack *s;
 static int server_pid;
@@ -71,11 +81,75 @@ void memory_controller(int signum, siginfo_t *info, void *context)
 }
 
 
+int create_mem_handlers()
+{
+	mem_handler = (struct sigaction *)mem_calloc(sizeof(struct sigaction));
+	if (!mem_handler)
+		return 0;
+	mem_handler->sa_flags =  SA_RESTART | SA_SIGINFO;   
+	sigemptyset (&mem_handler->sa_mask);
+	mem_handler->sa_sigaction = memory_controller;
+	if ((sigaction(SIGUSR1, mem_handler, NULL) == -1 ||(sigaction(SIGUSR2, mem_handler, NULL) == -1)))
+	{
+	 printf("Error: Unable to set signals!\n");
+	 return 0;
+	}
+	signal(SIGINT, SIG_IGN); // Ignore interruptions
+
+	// For each client created, set this handler so it'll know the result is set.
+	user_action_handler = (struct sigaction *)mem_calloc(sizeof(struct sigaction));
+	if (!user_action_handler)
+		return 0;
+	user_action_handler->sa_handler = on_action_complete;
+	return 1;
+}
+
+int set_global_memory()
+{
+	server_pid = getpid();
+	s = (struct Stack *)create_stack();
+
+	// Server to client relation
+	shared_top = (char *)mem_calloc(MAXVAL);
+	shared_status = (int *)mem_calloc(sizeof(int));
+
+	// Client to server relation
+	user_input = (char *)mem_calloc(MAXVAL);
+	user_input_size = (int *)mem_calloc(sizeof(int));
+
+	if (!s || !shared_top || !shared_status || !user_input || !user_input_size)
+	{
+		perror("ERROR: Unable to allocate memory!\n");
+		return 0;
+	}
+	*shared_status = 1; // Stack is set to be empty by default.
+	return 1;
+}
+
+int set_global_stack_memory()
+{
+	printf("DEBUG: Setting Signals handler\n");
+	if (!create_mem_handlers())
+		return 0;
+
+	printf("DEBUG: Allocating & Setting memory....\n");
+	// Stack - Although it is managed to be shared memory, I can choose to make all non-top variables as private.
+	if (!set_global_memory())
+		return 0;
+
+	printf("DEBUG: Creating shared mutex...\n");
+	if (!init_mutex(&lock)){
+		printf("Failed to create process safe mutex!\n");
+		return 0;
+	} // Initate serverwide mutex
+    	return 1;
+}
+
 int client_push(char *ptr, int size)
 {
 	pthread_mutex_lock(&lock); // Locking the mutex
 	// Pass data to server
-	memset(user_input, 0, 1024); // ZERO-TRUST
+	memset(user_input, 0, MAXVAL); // ZERO-TRUST
 	strcpy(user_input, ptr);
 	*user_input_size = size;
 	kill(server_pid, SIGUSR1); // REQUEST PARENT TO PUSH
@@ -93,6 +167,13 @@ int client_pop(struct Stack *stack)
 	pthread_mutex_unlock(&lock); // Locking the mutex
 	return 1;
 }
+
+///
+///
+///
+///
+/// MAIN
+
 
 void *client_handler(void *args)
 {
@@ -145,52 +226,8 @@ void *client_handler(void *args)
 
 int main(void)
 {
-    printf("DEBUG: Server PID %d | Setting Cross-Process Protocol..\n", getpid());
-    server_pid = getpid();
-   
-    printf("DEBUG: Setting Signals handler\n");
-    mem_handler = (struct sigaction *)mem_calloc(sizeof(struct sigaction));
-    mem_handler->sa_flags = SA_SIGINFO | SA_RESTART;   
-    mem_handler->sa_handler = memory_controller;
-    
-    if ((sigaction(SIGUSR1, mem_handler, NULL) == -1 ||(sigaction(SIGUSR2, mem_handler, NULL) == -1)))
-    {
-         printf("Error: Unable to set signals!\n");
-         return 0;
-    }
-    signal(SIGINT, SIG_IGN); // Ignore interruptions
-    
-    // For each client created, set this handler so it'll know the result is set.
-    user_action_handler = (struct sigaction *)mem_calloc(sizeof(struct sigaction));
-    user_action_handler->sa_handler = on_action_complete;
-    
-    printf("DEBUG: Allocating memory....\n");
-    // Stack - Although it is managed to be shared memory, I can choose to make all non-top variables as private.
-    s = (struct Stack *)create_stack();
-    
-    // Server to client relation
-    shared_top = (char *)mem_calloc(1024);
-    shared_status = (int *)mem_calloc(sizeof(int));
-    
-    // Client to server relation
-    user_input = (char *)mem_calloc(1024);
-    user_input_size = (int *)mem_calloc(sizeof(int));
-    
-    if (!s || !shared_top || !shared_status || !user_input || !user_input_size)
-    {
-    	printf("ERROR: Unable to allocate memory!\n");
+    if (!set_global_stack_memory())
     	return 0;
-    }
-    
-    
-    *shared_status = 1; // Stack is set to be empty by default.
-    
-    printf("Creating shared mutex...\n");
-    if (!init_mutex(&lock)){
-    	printf("Failed to create process safe mutex!\n");
-    	return 0;
-    } // Initate serverwide mutex
-    
     
     struct sigaction *sa = calloc(sizeof(struct sigaction), 1);
     char s[INET_ADDRSTRLEN];
@@ -211,3 +248,4 @@ int main(void)
     free(sa);
     return 0;
 }
+

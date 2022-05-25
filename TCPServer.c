@@ -161,7 +161,6 @@ void handle_forever_process(int sockfd, char *s[INET_ADDRSTRLEN], void *(* f)(vo
 	if (pid == 0)
 	{
 		(*f)((void *)&new_fd); // Call handler
-		//wait(NULL); 
 	} // Else failed or parent
        	else if (pid < 0)
        	{
