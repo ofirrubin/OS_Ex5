@@ -94,7 +94,7 @@ int create_mem_handlers()
 	 printf("Error: Unable to set signals!\n");
 	 return 0;
 	}
-	signal(SIGINT, SIG_IGN); // Ignore interruptions
+	//signal(SIGINT, SIG_IGN); // Ignore interruptions
 
 	// For each client created, set this handler so it'll know the result is set.
 	user_action_handler = (struct sigaction *)mem_calloc(sizeof(struct sigaction));

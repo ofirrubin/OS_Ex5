@@ -41,4 +41,10 @@
 	   Run by `<test>`, Result: The last two lines simulates a client checking the stack; Requesting top & exit
 	   If the results shows empty stack - Testing passed, otherwise failed. [Currently seems to work].
 	   Note: Ignore trash.txt | I got error redirecting to null thus created a file and it will be deleted by `make clean`.
-		
+- Helper:
+	   In order to kill the server quickly, I created small script to allow me quickly kill process by unique grep
+	   for the output of `netstat -lptn`:
+	   Run by `python3 kill_net_process.py <filter>` where filter in this case might be
+	   * program name: `server`
+	   * ip&port combo `0.0.0.0:3490`
+	   Which is quicker than fining the pid everytime and adjusting the command each time.
