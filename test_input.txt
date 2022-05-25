@@ -1,0 +1,196 @@
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+push A
+top
+pop
+exit
